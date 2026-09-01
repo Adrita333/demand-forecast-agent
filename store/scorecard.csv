@@ -1,0 +1,2 @@
+generated_utc,weeks,markets,skus,series_fitted,series_excluded,model,holdout_weeks,runtime_seconds,gates_run,gates_high,gates_clear,largest_gate,largest_share_pct,censoring_rate_pct,bias_naive_pct,bias_repaired_pct,k_mape,k_wmape,z_recommended,net_usd_safety_stock
+2026-08-27T20:39:43Z,156,3,4,9,3,"SARIMAX(1, 0, 1)(0, 1, 0, 52)",26,87.4,5,3,0,G2-SAFETY-STOCK,90.29,6.48,-8.2,-6.9,1.05,1.1,0.84,23990

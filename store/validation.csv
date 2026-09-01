@@ -1,0 +1,5 @@
+test,metric,value,threshold,verdict,series_used
+placebo,pct_of_induced_bias_removed,63.7,50.0,PASS,4
+masking_vs_imputation,em_bias_minus_naive_points,1.3,0.0,PASS,9
+market_pattern,pct_loss_in_short_markets,97.7,50.0,PASS,3
+answer_key_quarantine,references,15.0,0.0,PASS,0

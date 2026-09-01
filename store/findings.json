@@ -1,0 +1,367 @@
+{
+  "generated_utc": "2026-08-27T20:39:43Z",
+  "weeks": 156,
+  "markets": [
+    "ID",
+    "MY",
+    "SG"
+  ],
+  "skus": [
+    "DIA-NB",
+    "PAD-LIN",
+    "PAD-NGT",
+    "PAD-REG"
+  ],
+  "series_fitted": 9,
+  "series_excluded": 3,
+  "model": "SARIMAX(1, 0, 1)(0, 1, 0, 52)",
+  "exog": [
+    "is_ramadan_peak",
+    "is_cny",
+    "is_yearend",
+    "on_promo"
+  ],
+  "holdout_weeks": 26,
+  "runtime_seconds": 87.4,
+  "findings": [
+    {
+      "id": "G2-SAFETY-STOCK",
+      "title": "Orders are sized on the point forecast, with no buffer",
+      "severity": "HIGH",
+      "diagnosis": "At z=0 the simulated fill rate is 96.7% and 8.5% of weeks stock out. Raising z to 0.84 - a 80% service target - lifts fill to 99.7%. The forecast is unchanged. What changes is how much of its error the policy is willing to absorb.",
+      "evidence": {
+        "curve": [
+          {
+            "z": 0.0,
+            "target": "no buffer",
+            "fill_rate_pct": 96.74,
+            "weeks_ok_pct": 91.45,
+            "usd_lost": 33118.97,
+            "mean_units_held": 389.84
+          },
+          {
+            "z": 0.84,
+            "target": "80%",
+            "fill_rate_pct": 99.72,
+            "weeks_ok_pct": 98.72,
+            "usd_lost": 3215.24,
+            "mean_units_held": 1016.4
+          },
+          {
+            "z": 1.28,
+            "target": "90%",
+            "fill_rate_pct": 99.96,
+            "weeks_ok_pct": 99.57,
+            "usd_lost": 439.13,
+            "mean_units_held": 1402.11
+          },
+          {
+            "z": 1.65,
+            "target": "95%",
+            "fill_rate_pct": 100.0,
+            "weeks_ok_pct": 100.0,
+            "usd_lost": 0.0,
+            "mean_units_held": 1735.14
+          },
+          {
+            "z": 2.05,
+            "target": "98%",
+            "fill_rate_pct": 100.0,
+            "weeks_ok_pct": 100.0,
+            "usd_lost": 0.0,
+            "mean_units_held": 2097.34
+          }
+        ],
+        "z_recommended": 0.84,
+        "gross_usd_recovered": 29904,
+        "extra_stock_value_usd": 26879,
+        "carrying_cost_usd": 5913,
+        "net_usd": 23990,
+        "carrying_rate": 0.22
+      },
+      "recoverable_share": 0.9029183879114662,
+      "cost_to_fix": "A parameter in the replenishment rule, plus a business decision on the service target. No model change.",
+      "validation": "Compare the realised fill rate against the service level the policy nominally targets. If the policy has no z at all, the target is 50% whether anyone chose it or not. That comparison runs on their own shipment and order history.",
+      "caveat": "THIS SHARE IS AN UPPER BOUND. The simulation has fixed lead times, no supplier shortfalls, no minimum order quantities and no shelf constraint. Every one of those pushes the real recovery lower. Quote the direction and the mechanism; treat the level as a ceiling, not an estimate."
+    },
+    {
+      "id": "G1-METRIC",
+      "title": "The accuracy metric rewards under-forecasting",
+      "severity": "HIGH",
+      "diagnosis": "MAPE is minimised at k=1.05 (bias -5.5%) while WMAPE is minimised at k=1.10 (bias -1.0%). Same model, same data, same holdout - only the ruler changed, and the ruler asks for a smaller number. A team that tunes to MAPE is being told to under-forecast, and it will.",
+      "evidence": {
+        "k_mape": 1.05,
+        "k_wmape": 1.1,
+        "bias_at_k_mape_pct": -5.54,
+        "bias_at_k_wmape_pct": -1.04,
+        "bias_unscaled_pct": -10.04,
+        "mape_at_k_mape": 12.6,
+        "wmape_at_k_wmape": 13.03,
+        "usd_lost_tuned_to_mape": 17799,
+        "usd_lost_tuned_to_wmape": 7887,
+        "sweep": [
+          {
+            "k": 0.7,
+            "mape": 35.08,
+            "wmape": 37.03,
+            "bias": -37.03
+          },
+          {
+            "k": 0.75,
+            "mape": 30.46,
+            "wmape": 32.55,
+            "bias": -32.53
+          },
+          {
+            "k": 0.8,
+            "mape": 26.03,
+            "wmape": 28.27,
+            "bias": -28.03
+          },
+          {
+            "k": 0.85,
+            "mape": 22.01,
+            "wmape": 24.29,
+            "bias": -23.53
+          },
+          {
+            "k": 0.9,
+            "mape": 18.55,
+            "wmape": 20.66,
+            "bias": -19.04
+          },
+          {
+            "k": 0.95,
+            "mape": 15.5,
+            "wmape": 17.33,
+            "bias": -14.54
+          },
+          {
+            "k": 1.0,
+            "mape": 13.46,
+            "wmape": 14.91,
+            "bias": -10.04
+          },
+          {
+            "k": 1.05,
+            "mape": 12.6,
+            "wmape": 13.45,
+            "bias": -5.54
+          },
+          {
+            "k": 1.1,
+            "mape": 12.89,
+            "wmape": 13.03,
+            "bias": -1.04
+          },
+          {
+            "k": 1.15,
+            "mape": 14.14,
+            "wmape": 13.43,
+            "bias": 3.45
+          },
+          {
+            "k": 1.2,
+            "mape": 16.33,
+            "wmape": 14.84,
+            "bias": 7.95
+          },
+          {
+            "k": 1.25,
+            "mape": 19.19,
+            "wmape": 17.08,
+            "bias": 12.45
+          },
+          {
+            "k": 1.3,
+            "mape": 22.49,
+            "wmape": 19.83,
+            "bias": 16.95
+          }
+        ]
+      },
+      "recoverable_share": 0.5568981194954232,
+      "cost_to_fix": "One line in the scoring script. No new model, data or system.",
+      "validation": "Re-score last year's forecasts on WMAPE and bias alongside MAPE. If the model the team selected is not the one WMAPE would have selected, the metric is choosing for them. This needs no new data and no true-demand column.",
+      "caveat": "The SIZE of the effect is a property of this error distribution. The DIRECTION is a property of the formula and holds anywhere. MAPE is not useless - it is scale-free and easy to explain, which is why it spread. It is the wrong choice for an inventory decision, which is a different claim."
+    },
+    {
+      "id": "G3-CENSORED-HISTORY",
+      "title": "The model is trained on shipments, not on demand",
+      "severity": "HIGH",
+      "diagnosis": "6.5% of live weeks stocked out. In those weeks the record is a floor on demand, not demand. Forecast bias on raw shipments is -8.2%; after censored-likelihood imputation it is -6.9%. The gap closed is the part of the low bias that the data caused rather than the model.",
+      "evidence": {
+        "censored_weeks": 91,
+        "live_weeks": 1404,
+        "censoring_rate_pct": 6.48,
+        "bias_naive_pct": -8.2,
+        "bias_em_pct": -6.9,
+        "bias_points_recovered": -1.3,
+        "series_repaired": 9,
+        "usd_lost_naive": 33119,
+        "usd_lost_em": 27340
+      },
+      "recoverable_share": 0.1745037505687106,
+      "cost_to_fix": "A stockout flag on the demand table, then an EM loop around the existing fit. Days, not weeks - but it needs the flag, and most systems do not store one.",
+      "validation": "THE PLACEBO. Take weeks that did NOT stock out, artificially censor them at a level you choose, refit, and measure how far the bias moves. You know the truth for those weeks because you withheld it yourself. If the repair recovers most of the bias you induced, the method works - and this needs no true-demand column, which is why it runs on real client data.",
+      "caveat": "Deleting or masking the stockout weeks is the intuitive fix and it makes the bias WORSE, because stockouts cluster on peak weeks and masking removes the high observations. That result is reproduced in eval.py rather than asserted here. Imputation also cannot recover demand that never appeared as an order - customers who saw an empty shelf and bought nothing leave no trace at all."
+    },
+    {
+      "id": "G4-HORIZON",
+      "title": "The forecast stops before the week the order is responsible for",
+      "severity": "MEDIUM",
+      "diagnosis": "Required horizon is lead time plus a 1-week review. The tool provides 4 weeks. MY, ID are short by up to 3 weeks; SG are covered. Orders in the short markets are placed on a planner's extrapolation, not on the forecast.",
+      "evidence": {
+        "gaps": [
+          {
+            "lead": 3,
+            "required": 4,
+            "provided": 4,
+            "short": 0
+          },
+          {
+            "lead": 4,
+            "required": 5,
+            "provided": 4,
+            "short": 1
+          },
+          {
+            "lead": 6,
+            "required": 7,
+            "provided": 4,
+            "short": 3
+          }
+        ],
+        "error_by_horizon": [
+          {
+            "horizon": 1,
+            "wmape_pct": 12.22,
+            "n": 36
+          },
+          {
+            "horizon": 2,
+            "wmape_pct": 14.07,
+            "n": 36
+          },
+          {
+            "horizon": 3,
+            "wmape_pct": 12.25,
+            "n": 36
+          },
+          {
+            "horizon": 4,
+            "wmape_pct": 10.92,
+            "n": 36
+          },
+          {
+            "horizon": 5,
+            "wmape_pct": 11.88,
+            "n": 36
+          },
+          {
+            "horizon": 6,
+            "wmape_pct": 12.86,
+            "n": 36
+          },
+          {
+            "horizon": 7,
+            "wmape_pct": 13.54,
+            "n": 36
+          },
+          {
+            "horizon": 8,
+            "wmape_pct": 14.39,
+            "n": 36
+          }
+        ],
+        "by_market": [
+          {
+            "market": "ID",
+            "lead": 6,
+            "required": 7,
+            "usd_legacy": 34336,
+            "usd_fixed": 33119,
+            "usd_saved": 1217
+          },
+          {
+            "market": "MY",
+            "lead": 4,
+            "required": 5,
+            "usd_legacy": 0,
+            "usd_fixed": 0,
+            "usd_saved": 0
+          },
+          {
+            "market": "SG",
+            "lead": 3,
+            "required": 4,
+            "usd_legacy": 0,
+            "usd_fixed": 0,
+            "usd_saved": 0
+          }
+        ],
+        "usd_lost_legacy": 34336,
+        "usd_lost_fixed": 33119,
+        "z_sensitivity": [
+          {
+            "z": 0.0,
+            "target": "no buffer",
+            "usd_legacy": 34336,
+            "usd_fixed": 33119,
+            "share_pct": 3.54
+          },
+          {
+            "z": 0.84,
+            "target": "80%",
+            "usd_legacy": 3215,
+            "usd_fixed": 3215,
+            "share_pct": 0.0
+          },
+          {
+            "z": 1.28,
+            "target": "90%",
+            "usd_legacy": 439,
+            "usd_fixed": 439,
+            "share_pct": 0.0
+          }
+        ]
+      },
+      "recoverable_share": 0.03543491692395488,
+      "cost_to_fix": "A parameter. Changing a 4 to a 7 costs nothing.",
+      "validation": "THE AUDIT, and it needs no data science. Ask for two numbers per market: supplier lead time and forecast horizon. If horizon is less than lead plus review, orders are being placed on an extrapolation. Five minutes with a planner. Then check the pattern: losses should CONCENTRATE in the short markets. If they are spread evenly, the horizon is not the cause and this finding should be dropped.",
+      "caveat": "A BUFFER MASKS THIS. See z_sensitivity: measured against a bare policy the shortfall costs real money, but once safety stock is sized properly it absorbs almost all of it. So gate 2 and gate 4 OVERLAP and their shares must never be added - fixing the buffer largely fixes this too. The horizon is still worth extending, because it is free and because it stops the buffer from having to cover a self-inflicted error. The size also depends on how a planner fills the gap - flat-lining the visible average is assumed here; a good planner does better and a distracted one worse. The direction does not depend on that. Finally, extending the horizon is free in software and not free in accuracy: week 7 is genuinely harder than week 1. The error-by-horizon curve is estimated from few origins and will not be smoothly monotonic - do not read a wiggle as signal."
+    },
+    {
+      "id": "G5-COVERAGE",
+      "title": "Some series are too young to be forecast at all",
+      "severity": "MEDIUM",
+      "diagnosis": "3 of 12 series have fewer than 80 weeks against a 52-week seasonal period. They are excluded here rather than fitted badly. A forecast for a series with less than one seasonal cycle of history is fitted noise, and reporting it with the same confidence as a three-year series is the error.",
+      "evidence": {
+        "excluded": [
+          {
+            "market": "ID",
+            "sku": "DIA-NB",
+            "weeks": 38
+          },
+          {
+            "market": "MY",
+            "sku": "DIA-NB",
+            "weeks": 38
+          },
+          {
+            "market": "SG",
+            "sku": "DIA-NB",
+            "weeks": 38
+          }
+        ],
+        "fitted": 9,
+        "min_history_weeks": 80,
+        "seasonal_period": 52
+      },
+      "recoverable_share": 0.0,
+      "cost_to_fix": "A coverage rule in the pipeline, plus an analogue method for new products - forecast from a comparable SKU's launch curve and say so on the label.",
+      "validation": "Backtest the incumbent tool on new-product weeks alone and compare its error there against its error on mature series. If new-product error is not materially worse, the tool is handling them and this finding does not apply.",
+      "caveat": "This gate recovers no money directly. It prevents a confident wrong number from entering the plan, which is a different kind of value and should not be added to the other four."
+    }
+  ]
+}

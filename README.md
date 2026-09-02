@@ -1,5 +1,7 @@
 # Demand Forecast Health Check Agent
 
+[![tests](https://github.com/Adrita333/demand-forecast-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/Adrita333/demand-forecast-agent/actions/workflows/tests.yml)
+
 An agent that reads a demand history and tells you **why** the forecast keeps
 stocking out — not by building a bigger model, but by testing for the small
 number of well-understood faults that actually cause it.
@@ -58,7 +60,7 @@ matching finding is **withdrawn** from the report, not reworded.
 | Placebo | 63.7% | Censoring artificially induced on clean weeks; the repair removed two thirds of it |
 | Intuitive fix | +1.3 pts | Masking stockout weeks makes bias *worse*; imputation makes it better |
 | Market pattern | 97.7% | Loss concentrates in the markets short of horizon, not spread evenly |
-| Answer key | PASS | Source audit: `true_demand` never reaches a model fit |
+| Answer key | PASS | Source audit: `true_demand` never reaches a model fit — see the note below |
 
 **The placebo needs no answer key**, which is why it runs on a real client's
 data. Take weeks that did *not* stock out, censor them artificially, refit,
@@ -72,6 +74,38 @@ Singapore, whose lead time already fits inside the horizon, carries zero. If a
 bigger model were the answer, all three markets would be losing money together.
 
 ---
+
+## The tests
+
+    python -m pytest -q          # 14 tests, under a second
+
+They read the committed report in `store/` and parse the modelling sources.
+They do not refit: a full run is ~90s of SARIMAX plus two minutes of
+validation, and a suite nobody waits for is a suite nobody runs.
+
+**The answer-key audit is the reason this suite exists.** `eval.py`'s fourth
+validation test lists every reference to `true_demand` in the modelling files
+and then reports PASS — `p4 = True` is a literal. It is a listing, not a
+check, which is why the README above says three of the four tests can fail.
+
+`test_the_answer_key_never_reaches_a_model_fit` makes it a real one. It parses
+`forecast.py` and `checks.py`, finds every callable that receives an
+expression mentioning `true_demand`, and asserts the set is exactly
+`{F.simulate}` — the policy simulator, which scores a decision after the
+fact. Anything else fails and is named.
+
+Verified by breaking it: renaming one `F.simulate(b["true_demand"], ...)` call
+to `F.fit_on(...)` fails the test with `{'checks.py:F.fit_on': 1}`.
+
+| Test | What breaks it |
+|---|---|
+| The answer key never reaches a model fit | `true_demand` is passed to anything but the simulator |
+| The forecasting layer never touches the answer key | `forecast.py` gains any reference at all |
+| Every finding states what would disprove it | A finding ships without a falsification route |
+| Each verdict follows from its own numbers | A validation test hardcodes PASS instead of comparing |
+| A failed validation withdraws its finding | A failing test leaves its finding in the report |
+| The shares cannot be summed | They stop overlapping, so a reader could add them |
+| Excluded series are reported, not dropped | The coverage gate stops excluding anything |
 
 ## Two mistakes this build caught in itself
 
@@ -139,6 +173,7 @@ and `eval.py` audits the source of `forecast.py` and `checks.py` to confirm.
     main.py           run the gates, rank, write findings.json
     store.py          flatten into the tables the app reads
     eval.py           the falsifiability layer
+    tests/            report invariants and the answer-key audit
     app.py            Streamlit review interface
     generate_data.py  the synthetic history and the faults built into it
     data/             demand, events, promos, SKU master

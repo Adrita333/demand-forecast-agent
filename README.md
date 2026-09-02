@@ -18,6 +18,12 @@ with its evidence, what fraction of the loss it recovers, what it costs to fix,
 Built on a synthetic 3-year weekly history: 156 weeks, 3 markets, 4 SKUs. No
 client data is used anywhere in this repository.
 
+[![Five gates run, three fired HIGH, ranked by recoverable value](assets/app.png)](https://demand-forecast-agent.streamlit.app/)
+
+**[▶ Open the live app](https://demand-forecast-agent.streamlit.app/)**
+
+<sub>*Hosted free; if it shows a "wake app" button, give it about 30 seconds.*</sub>
+
 ---
 
 ## What it finds on the demo dataset

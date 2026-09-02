@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      # The suite reads the committed report in store/ and parses the
+      # modelling sources. It does not refit - a full run is ~90s of SARIMAX
+      # plus two minutes of validation, and a suite nobody waits for is a
+      # suite nobody runs.
+      - name: Run the report invariants and the answer-key audit
+        run: python -m pytest -q
